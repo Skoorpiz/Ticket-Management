@@ -1,6 +1,7 @@
 <?php
 include_once 'includes/bdd.php';
-include_once 'includes/header.php'
+$page = "ticket";
+include_once 'includes/header.php';
 ?>
    <form action="script/traitementUploadTicket.php" method="post" enctype="multipart/form-data">
         <h2>Upload Fichier</h2>
