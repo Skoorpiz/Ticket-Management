@@ -1,0 +1,15 @@
+#chartdiv1 {
+  width: 100%;
+  height: 500px;
+}
+#chartdiv2 {
+    width: 100%;
+    height: 500px;
+  }
+#chartdiv3 {
+    width: 100%;
+    height: 500px;
+  }
+.hidden{
+    display: none;
+}  
