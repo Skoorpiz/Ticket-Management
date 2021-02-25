@@ -6,7 +6,7 @@ $req = "SELECT * FROM `customer` WHERE id_tag IS NULL ORDER BY `customer`.`name`
 $res = $pdo->query($req);
 $customerDisplay = $res->fetchAll();
 ?>
-<br>
+<p> Ajout de regroupement</p>
 <style> 
 .taille{
     height: 600px;

@@ -6,15 +6,13 @@ $req = "SELECT * FROM `tag` ORDER BY `tag`.`name` ASC";
 $res = $pdo->query($req);
 $tag = $res->fetchAll();
 ?>
-
-
-<form>
-<table class="table table-bordered ">
+<p> Edition de regroupement</p>
+<table class="table table-bordered w-25 ">
     <thead>
         <tr>
-            <th>Identifiant</th>
-            <th>Nom</th>
-            <th>Actions</th>
+            <th width="1px">Identifiant</th>
+            <th >Nom</th>
+            <th width="1px">Actions</th>
         </tr>
 
     </thead>
