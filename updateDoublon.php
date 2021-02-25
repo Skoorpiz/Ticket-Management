@@ -20,6 +20,8 @@ $customer = $res->fetchAll();
 <form action="" method="POST">
     <p>Regroupement : </p> <input name="newTag" type="text" value="<?php echo $tag[0]['name'] ?>"><br><br>
     <button type="submit" class="btn btn-primary">Valider</button>
+    <a href="gestionDoublon.php"><input type='button' value="Annuler" class="btn btn-primary"></a>
+
 </form>
 <br>
 <table class="table table-bordered w-25">
