@@ -1,6 +1,7 @@
 <?php
 include_once 'includes/bdd.php';
 include_once 'includes/functions.php';
+$page = "détails";
 include_once 'includes/header.php';
 
 $req = "SELECT DISTINCT year FROM ticket ORDER BY ticket.year DESC";
