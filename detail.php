@@ -50,8 +50,8 @@ if (isset($_POST['operator']) && isset($_POST['year'])) {
 </div>
 <br>
 <form method="POST" action="">
-    <div class="col-1">
-        <select id="tag" class="hidden form-control" onchange="Change2(this.value)" name="tagForm">
+    <div id="tag" class="col-1 hidden">
+        <select class=" form-control" onchange="Change2(this.value)" name="tagForm">
             <option selected>Choisir un tag </option>
             <?php for ($i = 0; $i < count($tag); $i++) { ?>
                 <option value="<?php echo $tag[$i][0] ?>"><?php echo $tag[$i][1] ?></option>
