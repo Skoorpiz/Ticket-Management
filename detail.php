@@ -17,16 +17,13 @@ $tag = $res->fetchAll();
 if (isset($_POST['customer']) && isset($_POST['year'])) {
     $customer = $_POST['customer'];
     $year = $_POST['year'];
-    $tagForm = $_POST['tagForm'];
     $moyMinute = moyMinuteCustomer($pdo, $customer, $year);
     $maxMinute = maxMinuteCustomer($pdo, $customer, $year);
     $minMinute = minMinuteCustomer($pdo, $customer, $year);
     $nbMinute = nbMinuteCustomer($pdo, $customer);
-    for ($b = 0; $b < count($customer); $b++) {
-        $req = "SELECT DISTINCT name,year,customer.id_customer FROM customer,ticket WHERE customer.id_customer = $customer[$b] AND year = $year";
-        $res = $pdo->query($req);
-        $Choice[] = $res->fetchAll();
-    }
+    $req = "SELECT tag.name,year,tag.id_tag FROM tag,ticket WHERE tag.id_tag = $customer AND year = $year";
+    $res = $pdo->query($req);
+    $Choice = $res->fetchAll();
 }
 if (isset($_POST['operator']) && isset($_POST['year'])) {
     $operator = $_POST['operator'];
@@ -50,38 +47,31 @@ if (isset($_POST['operator']) && isset($_POST['year'])) {
 </div>
 <br>
 <form method="POST" action="">
-    <div id="tag" class="col-1 hidden">
-        <select class=" form-control" onchange="Change2(this.value)" name="tagForm">
-            <option selected>Choisir un tag </option>
+    <div id="customer" class="col-2 hidden">
+        <select class=" form-control" name="customer">
+            <option selected><?php if (isset($Choice) && isset($customer)) {
+                                    echo $Choice[0]['name'];
+                                } else { ?> Choisir un regroupement <?php } ?></option>
             <?php for ($i = 0; $i < count($tag); $i++) { ?>
                 <option value="<?php echo $tag[$i][0] ?>"><?php echo $tag[$i][1] ?></option>
             <?php } ?>
         </select>
+        <br>
+        <select class="form-control" name="year">
+            <option selected><?php if (isset($Choice) && isset($customer)) {
+                                    echo $Choice[0]['year'];
+                                } else { ?> Choisir une année <?php } ?></option>
+            <?php
+            for ($i = 0; $i < count($yearDisplay); $i++) { ?>
+                <option><?php echo $yearDisplay[$i]['year'] ?></option>
+            <?php
+            }
+            ?>
+        </select>
+        <br>
+        <button class="btn btn-primary" type="submit">Valider</button>
     </div>
     <br>
-    <div class="hidden" id="customer">
-        <div class="col-2">
-            <select id="multipleSelect" multiple data-style="bg-white rounded-pill px-4 py-3 shadow-sm " name="customer[]" class="selectpicker">
-            </select>
-        </div>
-        <br>
-        <div class="col-2">
-            <select class="form-control" name="year">
-                <option selected><?php if (isset($Choice) && isset($customer)) {
-                                        echo $Choice[0][0]['year'];
-                                    } else { ?> Choisir une année <?php } ?></option>
-                <?php
-                for ($i = 0; $i < count($yearDisplay); $i++) { ?>
-                    <option><?php echo $yearDisplay[$i]['year'] ?></option>
-
-                <?php
-                }
-                ?>
-            </select>
-        </div>
-    </div>
-    <br><br>
-    <button class="btn btn-primary" type="submit">Valider</button>
 </form>
 
 <form id="operator" class="hidden" method="POST" action="">
@@ -120,87 +110,138 @@ if (isset($Choice)) {
 ?>
     <center>
         <?php if (isset($customer)) { ?>
-            <H2>Evolution mensuel de <?php for ($b = 0; $b < count($customer); $b++) {
-                                            echo $Choice[$b][0]['name'] . ", ";
-                                        } ?>
-                pour l'année de <?php echo  $Choice[0][0]['year'] ?>
+            <H2>Evolution mensuel de <?php
+                                        echo $Choice[0]['name'];
+                                        ?>
+                pour l'année de <?php echo  $Choice[0]['year'] ?>
             <?php
         } else if (isset($operator)) { ?>
                 <H2>Evolution mensuel de <?php echo $Choice[0]['name'] ?></H2><?php } ?>
-    </center>
-<?php
-}
-?>
-<br>
-<div id="chartdiv1"></div>
-<?php
-if (isset($Choice)) {
-?>
-    <center>
-        <?php if (isset($customer)) { ?>
-            <H2>Evolution annuel de <?php for ($b = 0; $b < count($customer); $b++) {
-                                        echo $Choice[$b][0]['name'] . ", ";
-                                    } ?>
+        <?php
+    }
+        ?>
+        <br>
+        <div id="chartdiv1"></div>
+        <?php
+        if (isset($Choice)) {
+        ?>
+            <?php if (isset($customer)) { ?>
+                <H2>Evolution annuel de <?php
+                                        echo $Choice[0]['name'];
+                                        ?>
+                <?php
+            } else if (isset($operator)) { ?>
+                    <H2>Evolution annuel de <?php echo $Choice[0]['name'] ?></H2><?php } ?>
             <?php
-        } else if (isset($operator)) { ?>
-                <H2>Evolution annuel de <?php echo $Choice[0]['name'] ?></H2><?php } ?>
-    </center>
-<?php
-}
-?>
-<br>
-<div id="chartdiv2"></div>
-<script>
-    $(function() {
-        $('.selectpicker').selectpicker();
-    });
-    <?php if (isset($customer)) { ?>
-        document.getElementById("customer").classList.remove("hidden");
-        document.getElementById("tag").classList.remove("hidden");
-    <?php } else if (isset($operator)) { ?>
-        document.getElementById("operator").classList.remove("hidden");
-    <?php } ?>
-
-    function resetValue() {
-        document.getElementById("customer").classList.add("hidden");
-        document.getElementById("operator").classList.add("hidden");
-        document.getElementById("tag").classList.add("hidden");
-
-    }
-
-    function Change(val) {
-        resetValue();
-        switch (val) {
-            case "client":
-                // document.getElementById("customer").classList.remove("hidden");
-                document.getElementById("tag").classList.remove("hidden");
-                break;
-            case "operateur":
-                document.getElementById("operator").classList.remove("hidden");
-                break;
         }
-    }
+            ?>
+            <br>
+            <div id="chartdiv2"></div>
+            <?php if (isset($customer) || isset($operator)) { ?>
+                <table class="table table-bordered w-50">
+                    <thead>
+                        <tr>
+                            <th width="1px;"></th>
+                            <?php for ($i = 0; $i < count($yearDisplay); $i++) { ?>
+                                <th><?php echo $yearDisplay[$i]['year'] ?></th>
+                            <?php } ?>
+                        </tr>
 
-    function Change2(val) {
-        document.getElementById("customer").classList.remove("hidden");
-        var formData = new FormData();
-        formData.append('datum', val);
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() {
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-                // console.log(xmlHttp.responseText);
-                //    var afficherTag = $("#multipleSelect").text(xmlHttp.responseText);
-                //    console.log(afficherTag);
-                document.getElementById("multipleSelect").innerHTML = xmlHttp.responseText;
-                $('.selectpicker').selectpicker('refresh');
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Instantanée</td>
+                            <?php for ($i = 0; $i < count($yearDisplay); $i++) {
+                                $year = $yearDisplay[$i]['year'];
+                                if (isset($customer)) {
+                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 1 AND year = $year AND id_tag = $customer";
+                                } else if (isset($operator)) {
+                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 1 AND year = $year AND id_operator = $operator";
+                                }
+                                $res = $pdo->query($req);
+                                $instantanée = $res->fetchAll();
+                            ?>
+                                <td><?php echo $instantanée[0][0]  ?></td>
+                            <?php } ?>
+                        </tr>
+                        <tr>
+                            <td>Petite intervention</td>
+                            <?php for ($i = 0; $i < count($yearDisplay); $i++) {
+                                $year = $yearDisplay[$i]['year'];
+                                if (isset($customer)) {
+                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 2 AND year = $year AND id_tag = $customer";
+                                } else if (isset($operator)) {
+                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 2 AND year = $year AND id_operator = $operator";
+                                }
+                                $res = $pdo->query($req);
+                                $petiteIntervention = $res->fetchAll();
+
+                            ?>
+                                <td><?php echo $petiteIntervention[0][0]  ?></td>
+                            <?php } ?>
+                        </tr>
+                        <tr>
+                            <td>Moyenne intervention</td>
+                            <?php for ($i = 0; $i < count($yearDisplay); $i++) {
+                                $year = $yearDisplay[$i]['year'];
+                                if (isset($customer)) {
+                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 3 AND year = $year AND id_tag = $customer";
+                                } else if (isset($operator)) {
+                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 3 AND year = $year AND id_operator = $operator";
+                                }
+                                $res = $pdo->query($req);
+                                $moyenneIntervention = $res->fetchAll();
+                            ?>
+                                <td><?php echo $moyenneIntervention[0][0]  ?></td>
+                            <?php } ?>
+                        </tr>
+                        <tr>
+                            <td>Grande intervention</td>
+                            <?php for ($i = 0; $i < count($yearDisplay); $i++) {
+                                $year = $yearDisplay[$i]['year'];
+                                if (isset($customer)) {
+                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 4 AND year = $year AND id_tag = $customer";
+                                } else if (isset($operator)) {
+                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 4 AND year = $year AND id_operator = $operator";
+                                }
+                                $res = $pdo->query($req);
+                                $grandeIntervention = $res->fetchAll();
+                            ?>
+                                <td><?php echo $grandeIntervention[0][0]  ?></td>
+                            <?php } ?>
+                        </tr>
+                    </tbody>
+                </table>
+            <?php
+            }
+            ?>
+    </center>
+    <script>
+        <?php if (isset($customer)) { ?>
+            document.getElementById("customer").classList.remove("hidden");
+        <?php } else if (isset($operator)) { ?>
+            document.getElementById("operator").classList.remove("hidden");
+        <?php } ?>
+
+        function resetValue() {
+            document.getElementById("customer").classList.add("hidden");
+            document.getElementById("operator").classList.add("hidden");
+        }
+
+        function Change(val) {
+            resetValue();
+            switch (val) {
+                case "client":
+                    document.getElementById("customer").classList.remove("hidden");
+                    break;
+                case "operateur":
+                    document.getElementById("operator").classList.remove("hidden");
+                    break;
             }
         }
-        xmlHttp.open("post", "script/traitementAjax.php");
-        xmlHttp.send(formData);
+    </script>
+    <?php
+    if (isset($operator) && isset($year) || isset($customer) && isset($year)) {
+        include_once 'includes/traitementAmcharts.php';
     }
-</script>
-<?php
-if (isset($operator) || isset($customer) && isset($year)) {
-    include_once 'includes/traitementAmcharts.php';
-}
-include_once 'includes/footer.php';
+    include_once 'includes/footer.php';

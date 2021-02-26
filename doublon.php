@@ -2,7 +2,7 @@
 include_once 'includes/bdd.php';
 $page = "doublon";
 include_once 'includes/header.php';
-$req = "SELECT * FROM `customer` WHERE id_tag IS NULL ORDER BY `customer`.`name` ASC";
+$req = "SELECT name FROM tag WHERE SUBSTRING(name, 1, 4) IN ( SELECT SUBSTRING(name, 1, 4) FROM tag GROUP BY SUBSTRING(name, 1, 4) HAVING COUNT(SUBSTRING(name, 1, 4)) > 1 ) ORDER BY `tag`.`name` ASC";
 $res = $pdo->query($req);
 $customerDisplay = $res->fetchAll();
 $req = "SELECT name FROM tag";

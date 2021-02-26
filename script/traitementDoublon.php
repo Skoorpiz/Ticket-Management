@@ -12,6 +12,8 @@ for ($i = 0; $i < count($customer); $i++) {
     $idCustomer = $customer[$i];
     $req = "UPDATE customer set customer.id_tag = $idTag WHERE id_customer = $idCustomer;";
     $res = $pdo->query($req);
+    $req = "UPDATE ticket set ticket.id_tag = $idTag WHERE id_customer = $idCustomer;";
+    $res = $pdo->query($req);
     echo $req;
 header('Location: ../doublon.php');
 }

@@ -41,16 +41,15 @@
                 $compteur++;
             }
             if (isset($customer)) {
-                $moyMinute[$i] =  array_sum($moyMinute[$i]) / $b
             ?>
                 value = <?php
-                        echo number_format($moyMinute[$i], 0, '.', ' ');
+                        echo $moyMinute[$i]
                         ?>;
                 open = <?php
-                        echo max($maxMinute[$i])
+                        echo $maxMinute[$i]
                         ?>;
                 close = <?php
-                        echo min($minMinute[$i])
+                        echo $minMinute[$i]
                         ?>;
                 date = new Date();
                 date.setFullYear(0, <?php
@@ -141,7 +140,7 @@
             }
             if (isset($customer)) { ?>
                 names = [<?php echo '"' . $yearDisplay[$i]['year'] . '",'; ?>];
-                value = <?php echo array_sum($nbMinute[$i]); ?>
+                value = <?php echo $nbMinute[$i]; ?>
 
                 data.push({
                     category: names[0],
