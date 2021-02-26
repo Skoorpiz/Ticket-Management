@@ -1,5 +1,6 @@
 <?php
 include_once '../includes/bdd.php';
+include_once '../includes/functions.php';
 $download = 'fichier';
 $debug = false;
 if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
@@ -56,10 +57,11 @@ if (file_exists($file)) {
                     $operator = $line[7];
                     $customer =  $pdo->quote($line[9]);
                     $title = $pdo->quote($line[10]);
+                    $tagDecoup = explode("(", $line[9]);
+                    $tag = $pdo->quote($tagDecoup[0]);
                     $id = $pdo->quote($line[1]);
                     $created_at = $pdo->quote($line[5]);
                     $time_hour = $pdo->quote($line[11]);
-
                     $date = new DateTime();
                     if (preg_match('/(\d{1,})\/(\d{1,})\/(\d{4})/i', $line[5], $matches)) {
                         $date->modify(sprintf('%s-%s-%s 00:00:00', $matches[3], $matches[2], $matches[1]));
@@ -75,39 +77,25 @@ if (file_exists($file)) {
                     $month = $date->format('m');
                     $year = $date->format('Y');
                     $created_at = $date->format('Y-m-d');
-
-                    // $a_time_hour = explode('h', $time_hour);
-                    // $a_time_minute = explode('m', $a_time_hour[1]);
-                    // $hour = preg_replace('/[^0-9]/', '', $a_time_hour[0]);
-                    // $minute = preg_replace('/[^0-9]/', '', $a_time_minute[0]);
-                    // $time_minute = $hour * 60 + $minute;
-
+                    // $ids = array(
+                    //     "idCustomer" => 0,
+                    //     "idTag" => 0,
+                    //     "idOperator" => 0,
+                    //     "idPriority" => 0,
+                    // );
                     try {
-
-                        $req = "INSERT INTO customer (name) VALUES ($customer);";
-                        $statement = $pdo->prepare($req);
-                        $statement->bindValue(':client', $customer, PDO::PARAM_STR);
-                        $statement->execute();
+                        // $ids['idCustomer'] =
+                        insertCustomer($pdo, $customer);
+                        // $ids['idTag'] =
+                        insertTag($pdo, $tag);
+                        // $ids['idOperator'] =
+                        insertOperator($pdo, $operator);
+                        // $ids['idPriority'] =
+                        insertPriority($pdo, $priority);
                     } catch (Exception $e) {
                         $errors[] = $e->getMessage();
                     }
-
-
-                    try {
-
-                        $req = "INSERT INTO operator (name) VALUES ('$operator');";
-                        $res = $pdo->query($req);
-                    } catch (Exception $e) {
-                        $errors[] = $e->getMessage();
-                    }
-
-                    try {
-
-                        $req = "INSERT INTO priority (name) VALUES ('$priority');";
-                        $res = $pdo->query($req);
-                    } catch (Exception $e) {
-                        $errors[] = $e->getMessage();
-                    }
+                    // print_r($ids);
 
                     $req = "SELECT id_customer FROM customer WHERE name = $customer;";
                     $res = $pdo->query($req);
@@ -121,42 +109,37 @@ if (file_exists($file)) {
                     $res = $pdo->query($req);
                     $idPriority = $res->fetchColumn();
 
+                    $req = "SELECT id_tag FROM tag WHERE name = $tag;";
+                    $res = $pdo->query($req);
+                    $idTag = $res->fetchColumn();
 
                     switch ($time_minute) {
 
-                        case ($time_minute <= 15):
+                        case ($time_minute == 1):
                             $req = "SELECT id_zone FROM zone WHERE id_zone = 1;";
                             $res = $pdo->query($req);
                             $idZone = $res->fetchColumn();
                             break;
-                        case ($time_minute > 15 && $time_minute <= 30):
+                        case ($time_minute > 0 && $time_minute < 31):
                             $req = "SELECT id_zone FROM zone WHERE id_zone = 2;";
                             $res = $pdo->query($req);
                             $idZone = $res->fetchColumn();
                             break;
-                        case ($time_minute > 30 && $time_minute <= 60):
+                        case ($time_minute > 31 && $time_minute < 181):
                             $req = "SELECT id_zone FROM zone WHERE id_zone = 3;";
                             $res = $pdo->query($req);
                             $idZone = $res->fetchColumn();
                             break;
-                        case ($time_minute > 60 && $time_minute <= 120):
+                        case ($time_minute > 180):
                             $req = "SELECT id_zone FROM zone WHERE id_zone = 4;";
-                            $res = $pdo->query($req);
-                            $idZone = $res->fetchColumn();
-                            break;
-                        case ($time_minute > 120):
-                            $req = "SELECT id_zone FROM zone WHERE id_zone = 5;";
                             $res = $pdo->query($req);
                             $idZone = $res->fetchColumn();
                             break;
                     }
                     try {
-                        $req = "INSERT INTO ticket (id,title,time_hour,time_minute,created_at,month,year,id_zone,id_customer,id_operator,id_priority) VALUES ($id,$title,$time_hour,'$time_minute','$created_at','$month','$year','$idZone','$idCustomer','$idOperator','$idPriority');";
-
-                        // echo $nb;
-                        $res = $pdo->query($req);
-                        // $req = "UPDATE customer set id_tag = $idTag WHERE name = $customer";
-                        // $res = $pdo->query($req);
+                        insertTicket($pdo, $id, $title, $time_hour, $time_minute, $created_at, $month, $year, $idZone, $idCustomer, $idOperator, $idPriority);
+                        updateCustomer($pdo, $customer, $idTag);
+                        updateTicket($pdo, $idCustomer, $idTag);
                     } catch (Exception $e) {
                         $errors[] = $e->getMessage();
                     }
@@ -165,38 +148,8 @@ if (file_exists($file)) {
                 }
             }
         }
-        $req = "SELECT name
-                    FROM customer
-                    WHERE SUBSTRING(name, 1, 4) IN (
-                    SELECT SUBSTRING(name, 1, 4)
-                    FROM customer
-                    GROUP BY SUBSTRING(name, 1, 4)
-                    HAVING COUNT(SUBSTRING(name, 1, 4)) = 1 )";
-        $res = $pdo->query($req);
-        $a_tag = $res->fetchAll();
-        try {
-            for ($i = 0; $i < count($a_tag); $i++) {
-                $tag =  $pdo->quote($a_tag[$i]['name']);
-                $req = "INSERT INTO tag (name) VALUES ($tag);";
-                $res = $pdo->query($req);
-            }
-        } catch (Exception $e) {
-            $errors[] = $e->getMessage();
-        }
-        $req = "SELECT customer.name FROM customer,tag WHERE customer.name = tag.name";
-        $res = $pdo->query($req);
-        $a_nameCustomer = $res->fetchAll();
-        for ($i = 0; $i < count($a_nameCustomer); $i++) {
-            $nameCustomer = $pdo->quote($a_nameCustomer[$i]['name']);
-            $req = "SELECT DISTINCT tag.id_tag FROM tag,customer WHERE tag.name = $nameCustomer;";
-            $res = $pdo->query($req);
-            $idTag = $res->fetchColumn();
-            $req ="UPDATE customer set id_tag = $idTag WHERE name = $nameCustomer;";
-            $res = $pdo->exec($req);
-        }
-        fclose($handle);
     }
-
+    fclose($handle);
     if (count($errors) > 0) {
         print_r($errors);
     }

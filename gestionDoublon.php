@@ -41,7 +41,7 @@ $tag = $res->fetchAll();
 }
 </style>
 <p> Edition de regroupement</p>
-<input class="w-25" type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names..">
+<input class="w-25" type="text" id="myInput" onkeyup="myFunction()" placeholder="Recherche de regroupement">
 <table  id="myTable" class="table table-bordered w-25 ">
     <thead>
         <tr>
