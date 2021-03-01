@@ -4,19 +4,19 @@ include_once 'includes/functions.php';
 $page = "détails";
 include_once 'includes/header.php';
 
-$req = "SELECT DISTINCT year FROM ticket ORDER BY ticket.year DESC";
+$req = "SELECT DISTINCT year FROM ticket ORDER BY ticket.year ASC";
 $res = $pdo->query($req);
 $yearDisplay = $res->fetchAll();
-$req = "SELECT * FROM operator";
+$req = "SELECT * FROM operator ORDER BY `operator`.`name` ASC";
 $res = $pdo->query($req);
 $operatorDisplay = $res->fetchAll();
 $Choice = [];
 $req = "SELECT * FROM tag ORDER BY `tag`.`name` ASC";
 $res = $pdo->query($req);
 $tag = $res->fetchAll();
-if (isset($_POST['customer']) && isset($_POST['year'])) {
-    $customer = $_POST['customer'];
-    $year = $_POST['year'];
+if (isset($_GET['customer']) && isset($_GET['year'])) {
+    $customer = $_GET['customer'];
+    $year = $_GET['year'];
     $moyMinute = moyMinuteCustomer($pdo, $customer, $year);
     $maxMinute = maxMinuteCustomer($pdo, $customer, $year);
     $minMinute = minMinuteCustomer($pdo, $customer, $year);
@@ -25,9 +25,9 @@ if (isset($_POST['customer']) && isset($_POST['year'])) {
     $res = $pdo->query($req);
     $Choice = $res->fetchAll();
 }
-if (isset($_POST['operator']) && isset($_POST['year'])) {
-    $operator = $_POST['operator'];
-    $year = $_POST['year'];
+if (isset($_GET['operator']) && isset($_GET['year'])) {
+    $operator = $_GET['operator'];
+    $year = $_GET['year'];
     $moyMinute = moyMinuteOperator($pdo, $operator, $year);
     $maxMinute = maxMinuteOperator($pdo, $operator, $year);
     $minMinute = minMinuteOperator($pdo, $operator, $year);
@@ -38,48 +38,70 @@ if (isset($_POST['operator']) && isset($_POST['year'])) {
 }
 ?>
 <br>
+<style>
+    .bold {
+        font-weight: bold;
+    }
+</style>
 <div class="col-1">
     <select class="form-control" onchange="Change(this.value)">
         <option>Choisir une option..</option>
-        <option <?php if (isset($customer)) { ?> selected <?php } ?> value="client">Client</option>
-        <option <?php if (isset($operator)) { ?> selected <?php } ?> value="operateur">Operateur</option>
+        <option <?php if (isset($_GET['customer'])) { ?> selected <?php } ?> value="client">Client</option>
+        <option <?php if (isset($_GET['operator'])) { ?> selected <?php } ?> value="operateur">Operateur</option>
     </select>
 </div>
 <br>
-<form method="POST" action="">
-    <div id="customer" class="col-2 hidden">
-        <select class=" form-control" name="customer">
-            <option selected><?php if (isset($Choice) && isset($customer)) {
-                                    echo $Choice[0]['name'];
-                                } else { ?> Choisir un regroupement <?php } ?></option>
-            <?php for ($i = 0; $i < count($tag); $i++) { ?>
-                <option value="<?php echo $tag[$i][0] ?>"><?php echo $tag[$i][1] ?></option>
+<form id="customer" class="hidden" method="GET" action="">
+    <div class="col-2">
+        <select onchange="Change2(this.value)" class="form-control" name="customer">
+            <?php if (isset($_GET['customer'])) {
+                $req = "SELECT * FROM tag WHERE id_tag = $customer";
+                $res = $pdo->query($req);
+                $tagSelected = $res->fetchAll();
+            ?>
+                <option class="bold" selected value="<?php echo $customer ?>" selected><?php echo $tagSelected[0]['name'] ?></option>
+            <?php } else { ?>
+                <option selected>Choisir un regroupement</option>
             <?php } ?>
+            <?php for ($i = 0; $i < count($tag); $i++) : ?>
+                <option value="<?php echo $tag[$i][0] ?>"><?php echo $tag[$i][1] ?></option>
+            <?php endfor; ?>
         </select>
         <br>
-        <select class="form-control" name="year">
-            <option selected><?php if (isset($Choice) && isset($customer)) {
-                                    echo $Choice[0]['year'];
-                                } else { ?> Choisir une année <?php } ?></option>
-            <?php
-            for ($i = 0; $i < count($yearDisplay); $i++) { ?>
-                <option><?php echo $yearDisplay[$i]['year'] ?></option>
-            <?php
-            }
-            ?>
-        </select>
+        <?php if (isset(($_GET['customer']))) {
+            $req = "SELECT DISTINCT year FROM ticket WHERE id_tag = $customer ORDER BY `ticket`.`year` ASC";
+            $res = $pdo->query($req);
+            $yearSelected = $res->fetchAll();
+        ?>
+            <select id="year" class="form-control" name="year">
+                <option class="bold" selected><?php echo $year ?></option>
+                <?php for ($i = 0; $i < count($yearSelected); $i++) : ?>
+                    <option><?php echo $yearSelected[$i]['year'] ?></option>
+                <?php endfor; ?>
+            </select>
+        <?php } else { ?>
+            <select id="year" class="form-control" name="year">
+                <option selected> Choisir une année</option>
+            </select>
+        <?php } ?>
         <br>
         <button class="btn btn-primary" type="submit">Valider</button>
     </div>
     <br>
 </form>
 
-<form id="operator" class="hidden" method="POST" action="">
-    <div class="col-2">
-        <select class="form-control" name="operator">
-            <option <?php if (isset($Choice) && isset($operator)) { ?> value="<?php echo $Choice[0]['id_operator'] ?>" <?php } ?> selected><?php if (isset($Choice) && isset($operator)) {
-                                                                                                                                                echo $Choice[0]['name'];
-                                                                                                                                            } else { ?> Choisir un opérateur <?php } ?></option>
+<form id="operator" class="hidden" method="GET" action="">
+<div class="col-2 ">
+        <select onchange="Change3(this.value)" class="form-control" name="operator">
+            <?php if (isset(($_GET['operator']))) {
+                $req = "SELECT * FROM operator WHERE id_operator = $operator";
+                $res = $pdo->query($req);
+                $operatorSelected = $res->fetchAll();
+            ?>
+                <option class="bold" selected value="<?php echo $operator ?>" selected><?php echo $operatorSelected[0]['name'] ?></option>
+            <?php } else { ?>
+                <option selected>Choisir un opérateur</option>
+            <?php } ?>
             <?php
             for ($i = 0; $i < count($operatorDisplay); $i++) {
             ?>
@@ -88,22 +110,25 @@ if (isset($_POST['operator']) && isset($_POST['year'])) {
             }
             ?>
         </select>
-    </div>
-    <div class="col-2">
-        <select class="form-control" name="year">
-            <option selected><?php if (isset($Choice) && isset($operator)) {
-                                    echo $Choice[0]['year'];
-                                } else { ?> Choisir une année <?php } ?></option>
-            <?php
-            for ($i = 0; $i < count($yearDisplay); $i++) { ?>
-                <option><?php echo $yearDisplay[$i]['year'] ?></option>
-            <?php
-            }
+    <?php if (isset(($_GET['operator']))) { 
+            $req = "SELECT DISTINCT year FROM ticket WHERE id_operator = $operator ORDER BY `ticket`.`year` ASC";
+            $res = $pdo->query($req);
+            $yearSelected = $res->fetchAll();
             ?>
+             <select id="year2" class="form-control" name="year">
+                <option class="bold" selected><?php echo $year ?></option>
+                <?php for ($i = 0; $i < count($yearSelected); $i++) : ?>
+                    <option><?php echo $yearSelected[$i]['year'] ?></option>
+                <?php endfor; ?>
+            </select>
+        <?php } else { ?>
+        <select id="year2" class="form-control" name="year">
+            <option selected>Choisir une année</option>
         </select>
-    </div>
+        <?php } ?>
     <br><br>
     <button class="btn btn-primary" type="submit">Valider</button>
+    </div>
 </form>
 <?php
 if (isset($Choice)) {
@@ -116,7 +141,7 @@ if (isset($Choice)) {
                 pour l'année de <?php echo  $Choice[0]['year'] ?>
             <?php
         } else if (isset($operator)) { ?>
-                <H2>Evolution mensuel de <?php echo $Choice[0]['name'] ?></H2><?php } ?>
+                <H2>Evolution mensuel de <?php echo $Choice[0]['name'] ?> pour l'année de <?php echo  $Choice[0]['year'] ?></H2><?php } ?>
         <?php
     }
         ?>
@@ -141,7 +166,7 @@ if (isset($Choice)) {
                 <table class="table table-bordered w-50">
                     <thead>
                         <tr>
-                            <th width="1px;"></th>
+                            <th width="1px;">Intervention</th>
                             <?php for ($i = 0; $i < count($yearDisplay); $i++) { ?>
                                 <th><?php echo $yearDisplay[$i]['year'] ?></th>
                             <?php } ?>
@@ -217,6 +242,16 @@ if (isset($Choice)) {
             ?>
     </center>
     <script>
+        // var year = <?php
+                        // echo isset($_GET['customer']) ? $_GET['customer'] : 0
+                        ?>;
+        // function init() {
+        //     var customer =  document.getElementById("customer").options[e.selectedIndex].text;
+        //     if (customer) {
+        //         Change2(customer);
+        //     }
+        // }
+
         <?php if (isset($customer)) { ?>
             document.getElementById("customer").classList.remove("hidden");
         <?php } else if (isset($operator)) { ?>
@@ -238,6 +273,33 @@ if (isset($Choice)) {
                     document.getElementById("operator").classList.remove("hidden");
                     break;
             }
+        }
+
+        function Change2(val) {
+            var formData = new FormData();
+            formData.append('datum', val);
+            // formData.append('year', year);
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function() {
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                    document.getElementById("year").innerHTML = xmlHttp.responseText;
+                }
+            }
+            xmlHttp.open("post", "script/traitementCustomer.php");
+            xmlHttp.send(formData);
+        }
+
+        function Change3(val) {
+            var formData = new FormData();
+            formData.append('datum', val);
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function() {
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                    document.getElementById("year2").innerHTML = xmlHttp.responseText;
+                }
+            }
+            xmlHttp.open("post", "script/traitementOperator.php");
+            xmlHttp.send(formData);
         }
     </script>
     <?php

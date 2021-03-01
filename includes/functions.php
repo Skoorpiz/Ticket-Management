@@ -85,7 +85,7 @@ function minMinuteOperator($pdo, $operator, $year)
 }
 function nbMinuteCustomer($pdo, $customer)
 {
-    $req = "SELECT DISTINCT year FROM ticket ORDER BY ticket.year DESC";
+    $req = "SELECT DISTINCT year FROM ticket ORDER BY ticket.year ASC";
     $res = $pdo->query($req);
     $allYear = $res->fetchAll();
     for ($i = 0; $i < count($allYear); $i++) {
@@ -103,7 +103,7 @@ function nbMinuteCustomer($pdo, $customer)
 }
 function nbMinuteOperator($pdo, $operator)
 {
-    $req = "SELECT DISTINCT year FROM ticket ORDER BY ticket.year DESC";
+    $req = "SELECT DISTINCT year FROM ticket ORDER BY ticket.year ASC";
     $res = $pdo->query($req);
     $allYear = $res->fetchAll();
     for ($i = 0; $i  < count($allYear); $i++) {
