@@ -14,7 +14,6 @@ and open the template in the editor.
   <script src="/edsa-gestion_ticket/amcharts4/themes/animated.js" type="text/javascript"></script>
   <link href="/edsa-gestion_ticket/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/edsa-gestion_ticket/includes/styles.css" rel="stylesheet" type="text/css" />
-  <link href="/edsa-gestion_ticket/includes/styles.scss" rel="stylesheet" type="text/scss" />
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
   <script type="text/javascript" src="//code.jquery.com/jquery-3.3.1.slim.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>

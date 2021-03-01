@@ -8,13 +8,55 @@ $res = $pdo->query($req);
 $yearDisplay = $res->fetchAll();
 $nbMinuteTotal = nbMinuteTotal($pdo);
 $nbIntervention = nbInterventionTotal($pdo);
+
+$yearOperator = array(date("Y") - 1, date("Y"));
+
+$req = "SELECT operator.name, ticket.id_operator,SUM(time_minute) 
+FROM ticket
+INNER JOIN operator ON ticket.id_operator = operator.id_operator
+WHERE year = YEAR(CURDATE()) OR year = YEAR(CURDATE()) -1
+GROUP BY ticket.id_operator
+ORDER BY SUM(time_minute)  DESC
+LIMIT 5";
+$res = $pdo->query($req);
+$maxOperator = $res->fetchAll();
+
+$req = "SELECT operator.name, ticket.id_operator,SUM(time_minute) 
+FROM ticket
+INNER JOIN operator ON ticket.id_operator = operator.id_operator
+WHERE year = YEAR(CURDATE()) 
+OR year = YEAR(CURDATE()) -1
+AND time_minute > 0 
+GROUP BY ticket.id_operator
+ORDER BY SUM(time_minute)  ASC
+LIMIT 5";
+$res = $pdo->query($req);
+$minOperator = $res->fetchAll();
+
+$req = "SELECT tag.name, ticket.id_tag,SUM(time_minute) AS SUMTIME 
+FROM ticket
+INNER JOIN tag ON ticket.id_tag = tag.id_tag
+GROUP BY ticket.id_tag 
+ORDER BY `SUMTIME`  DESC 
+LIMIT 10";
+$res = $pdo->query($req);
+$maxCustomer = $res->fetchAll();
+
+$req = "SELECT tag.name, ticket.id_tag,SUM(time_minute) AS SUMTIME 
+FROM ticket
+INNER JOIN tag ON ticket.id_tag = tag.id_tag
+WHERE time_minute > 0 
+GROUP BY ticket.id_tag  
+ORDER BY `SUMTIME`  ASC
+LIMIT 10";
+$res = $pdo->query($req);
+$minCustomer = $res->fetchAll();
 ?>
 <br>
 <center>
-    <H2>Evolution de toutes les années</H2>
-</center>
-<div id="chartdiv3"></div>
-<center>
+    <H2>Evolution annuel</H2>
+    <div id="chartdiv3"></div>
+    <H2>Nombre d'heures, de clients et d'interventions annuel</H2>
     <table class="table table-bordered w-50">
         <thead>
             <tr>
@@ -55,10 +97,11 @@ $nbIntervention = nbInterventionTotal($pdo);
             </tr>
         </tbody>
     </table>
+    <H2>Nombre d'interventions par zone annuel</H2>
     <table class="table table-bordered w-50">
         <thead>
             <tr>
-                <th width="1px;">Intervention</th>
+                <th width="1px;">Interventions</th>
                 <?php for ($i = 0; $i < count($yearDisplay); $i++) { ?>
                     <th><?php echo $yearDisplay[$i]['year'] ?></th>
                 <?php } ?>
@@ -68,7 +111,7 @@ $nbIntervention = nbInterventionTotal($pdo);
         <tbody>
             <tr>
 
-                <td>Instantanée</td>
+                <td>Instantanées</td>
                 <?php for ($i = 0; $i < count($yearDisplay); $i++) {
                     $year = $yearDisplay[$i]['year'];
                     $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 1 AND year = $year";
@@ -81,7 +124,7 @@ $nbIntervention = nbInterventionTotal($pdo);
             </tr>
             <tr>
 
-                <td>Petite</td>
+                <td>Petite interventions</td>
                 <?php for ($i = 0; $i < count($yearDisplay); $i++) {
                     $year = $yearDisplay[$i]['year'];
                     $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 2 AND year = $year";
@@ -94,7 +137,7 @@ $nbIntervention = nbInterventionTotal($pdo);
             </tr>
             <tr>
 
-                <td>Moyenne</td>
+                <td>Moyenne interventions</td>
                 <?php for ($i = 0; $i < count($yearDisplay); $i++) {
                     $year = $yearDisplay[$i]['year'];
                     $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 3 AND year = $year";
@@ -107,7 +150,7 @@ $nbIntervention = nbInterventionTotal($pdo);
             </tr>
             <tr>
 
-                <td>Grande</td>
+                <td>Grande interventions</td>
                 <?php for ($i = 0; $i < count($yearDisplay); $i++) {
                     $year = $yearDisplay[$i]['year'];
                     $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 4 AND year = $year";
@@ -118,6 +161,152 @@ $nbIntervention = nbInterventionTotal($pdo);
                     <td><?php echo $grandeIntervention[0][0]  ?></td>
                 <?php } ?>
             </tr>
+        </tbody>
+    </table>
+    <H2>Clients les plus importants en intervention (heures/interventions)</H2>
+    <table class="table table-bordered w-50">
+        <thead>
+            <tr>
+                <th width="1px;">Clients</th>
+                <?php for ($i = 0; $i < count($yearDisplay); $i++) { ?>
+                    <th><?php echo $yearDisplay[$i]['year'] ?></th>
+                <?php } ?>
+            </tr>
+            <?php for ($i = 0; $i < count($maxCustomer); $i++) { ?>
+                <tr>
+                    <td><?php echo $maxCustomer[$i]['name'];  ?></td>
+                    <?php for ($n = 0; $n < count($yearDisplay); $n++) {
+                        $idCustomer = $maxCustomer[$i]['id_tag'];
+                        $year = $yearDisplay[$n]['year'];
+                        $req = "SELECT SUM(time_minute) FROM ticket WHERE id_tag = $idCustomer AND year = $year;";
+                        $res = $pdo->query($req);
+                        $sumTime[$n] = $res->fetchColumn();
+                        $sumTime[$n] = $sumTime[$n] / 60;
+                        $sumTime[$n] = number_format($sumTime[$n], 0, '.', ' ');
+                        if (empty($sumTime[$n])) {
+                            $sumTime[$n] = 0;
+                        }
+                        $req = "SELECT COUNT(*) FROM ticket WHERE id_tag = $idCustomer AND year = $year;";
+                        $res = $pdo->query($req);
+                        $nbInterventionCustomer[$n] =  $res->fetchColumn();
+                    ?>
+                        <td><?php echo  $sumTime[$n] . "H" . "<br>";
+                            echo   $nbInterventionCustomer[$n] ?></td>
+                    <?php } ?>
+                </tr>
+            <?php } ?>
+
+
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <H2>Clients les moins importants en intervention (heures/interventions)</H2>
+    <table class="table table-bordered w-50">
+        <thead>
+            <tr>
+                <th width="1px;">Clients</th>
+                <?php for ($i = 0; $i < count($yearDisplay); $i++) { ?>
+                    <th><?php echo $yearDisplay[$i]['year'] ?></th>
+                <?php } ?>
+            </tr>
+            <?php for ($i = 0; $i < count($minCustomer); $i++) { ?>
+                <tr>
+                    <td><?php echo $minCustomer[$i]['name'];  ?></td>
+                    <?php for ($n = 0; $n < count($yearDisplay); $n++) {
+                        $idCustomer = $minCustomer[$i]['id_tag'];
+                        $year = $yearDisplay[$n]['year'];
+                        $req = "SELECT SUM(time_minute) FROM ticket WHERE id_tag = $idCustomer AND year = $year;";
+                        $res = $pdo->query($req);
+                        $sumTime[$n] = $res->fetchColumn();
+                        $sumTime[$n] = $sumTime[$n] / 60;
+                        $sumTime[$n] = round($sumTime[$n], 2);
+                        if (empty($sumTime[$n])) {
+                            $sumTime[$n] = 0;
+                        }
+                        $req = "SELECT COUNT(*) FROM ticket WHERE id_tag = $idCustomer AND year = $year;";
+                        $res = $pdo->query($req);
+                        $nbInterventionCustomer[$n] =  $res->fetchColumn();
+                    ?>
+                        <td><?php echo  $sumTime[$n] . "H" . "<br>";
+                            echo   $nbInterventionCustomer[$n] ?></td>
+                    <?php } ?>
+                </tr>
+            <?php } ?>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <H2>Opérateur les plus importants en intervention (heures/interventions)</H2>
+    <table class="table table-bordered w-50">
+        <thead>
+            <tr>
+                <th width="1px;">Clients</th>
+                <?php for ($i = 0; $i < count($yearOperator); $i++) { ?>
+                    <th><?php echo $yearOperator[$i] ?></th>
+                <?php } ?>
+            </tr>
+            <?php for ($i = 0; $i < count($maxOperator); $i++) { ?>
+                <tr>
+                    <td><?php echo $maxOperator[$i]['name'];  ?></td>
+                    <?php for ($n = 0; $n < count($yearOperator); $n++) {
+                        $idOperator = $maxOperator[$i]['id_operator'];
+                        $year = $yearOperator[$n];
+                        $req = "SELECT SUM(time_minute) FROM ticket WHERE id_operator = $idOperator AND year = $year;";
+                        $res = $pdo->query($req);
+                        $sumTime[$n] = $res->fetchColumn();
+                        $sumTime[$n] = $sumTime[$n] / 60;
+                        $sumTime[$n] = number_format($sumTime[$n], 0, '.', ' ');
+                        if (empty($sumTime[$n])) {
+                            $sumTime[$n] = 0;
+                        }
+                        $req = "SELECT COUNT(*) FROM ticket WHERE id_operator = $idOperator AND year = $year;";
+                        $res = $pdo->query($req);
+                        $nbInterventionOperator[$n] =  $res->fetchColumn();
+                    ?>
+                        <td><?php echo  $sumTime[$n] . "H" . "<br>";
+                            echo   $nbInterventionOperator[$n] ?></td>
+                    <?php } ?>
+                </tr>
+            <?php } ?>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <H2>Opérateur les moins importants en intervention (heures/interventions)</H2>
+    <table class="table table-bordered w-50">
+        <thead>
+            <tr>
+                <th width="1px;">Clients</th>
+                <?php for ($i = 0; $i < count($yearOperator); $i++) { ?>
+                    <th><?php echo $yearOperator[$i] ?></th>
+                <?php } ?>
+            </tr>
+            <?php for ($i = 0; $i < count($minOperator); $i++) { ?>
+                <tr>
+                    <td><?php echo $minOperator[$i]['name'];  ?></td>
+                    <?php for ($n = 0; $n < count($yearOperator); $n++) {
+                        $idOperator = $minOperator[$i]['id_operator'];
+                        $year = $yearOperator[$n];
+                        $req = "SELECT SUM(time_minute) FROM ticket WHERE id_operator = $idOperator AND year = $year;";
+                        $res = $pdo->query($req);
+                        $sumTime[$n] = $res->fetchColumn();
+                        $sumTime[$n] = $sumTime[$n] / 60;
+                        $sumTime[$n] = round($sumTime[$n], 2);
+                        if (empty($sumTime[$n])) {
+                            $sumTime[$n] = 0;
+                        }
+                        $req = "SELECT COUNT(*) FROM ticket WHERE id_operator = $idOperator AND year = $year;";
+                        $res = $pdo->query($req);
+                        $nbInterventionOperator[$n] =  $res->fetchColumn();
+                    ?>
+                        <td><?php echo  $sumTime[$n] . "H" . "<br>";
+                            echo   $nbInterventionOperator[$n] ?></td>
+                    <?php } ?>
+                </tr>
+            <?php } ?>
+        </thead>
+        <tbody>
         </tbody>
     </table>
 </center>
