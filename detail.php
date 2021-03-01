@@ -110,6 +110,7 @@ if (isset($_GET['operator']) && isset($_GET['year'])) {
             }
             ?>
         </select>
+        <br>
     <?php if (isset(($_GET['operator']))) { 
             $req = "SELECT DISTINCT year FROM ticket WHERE id_operator = $operator ORDER BY `ticket`.`year` ASC";
             $res = $pdo->query($req);
@@ -126,7 +127,7 @@ if (isset($_GET['operator']) && isset($_GET['year'])) {
             <option selected>Choisir une année</option>
         </select>
         <?php } ?>
-    <br><br>
+    <br>
     <button class="btn btn-primary" type="submit">Valider</button>
     </div>
 </form>
@@ -139,6 +140,7 @@ if (isset($Choice)) {
                                         echo $Choice[0]['name'];
                                         ?>
                 pour l'année de <?php echo  $Choice[0]['year'] ?>
+            </H2>
             <?php
         } else if (isset($operator)) { ?>
                 <H2>Evolution mensuel de <?php echo $Choice[0]['name'] ?> pour l'année de <?php echo  $Choice[0]['year'] ?></H2><?php } ?>
@@ -154,6 +156,7 @@ if (isset($Choice)) {
                 <H2>Evolution annuel de <?php
                                         echo $Choice[0]['name'];
                                         ?>
+                </H2>
                 <?php
             } else if (isset($operator)) { ?>
                     <H2>Evolution annuel de <?php echo $Choice[0]['name'] ?></H2><?php } ?>
@@ -166,7 +169,7 @@ if (isset($Choice)) {
                 <table class="table table-bordered w-50">
                     <thead>
                         <tr>
-                            <th width="1px;">Intervention</th>
+                            <th width="1px;">Interventions</th>
                             <?php for ($i = 0; $i < count($yearDisplay); $i++) { ?>
                                 <th><?php echo $yearDisplay[$i]['year'] ?></th>
                             <?php } ?>
@@ -175,7 +178,7 @@ if (isset($Choice)) {
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Instantanée</td>
+                            <td>Instantanées</td>
                             <?php for ($i = 0; $i < count($yearDisplay); $i++) {
                                 $year = $yearDisplay[$i]['year'];
                                 if (isset($customer)) {
@@ -190,7 +193,7 @@ if (isset($Choice)) {
                             <?php } ?>
                         </tr>
                         <tr>
-                            <td>Petite intervention</td>
+                            <td>Petite interventions</td>
                             <?php for ($i = 0; $i < count($yearDisplay); $i++) {
                                 $year = $yearDisplay[$i]['year'];
                                 if (isset($customer)) {
@@ -206,7 +209,7 @@ if (isset($Choice)) {
                             <?php } ?>
                         </tr>
                         <tr>
-                            <td>Moyenne intervention</td>
+                            <td>Moyenne interventions</td>
                             <?php for ($i = 0; $i < count($yearDisplay); $i++) {
                                 $year = $yearDisplay[$i]['year'];
                                 if (isset($customer)) {
@@ -221,7 +224,7 @@ if (isset($Choice)) {
                             <?php } ?>
                         </tr>
                         <tr>
-                            <td>Grande intervention</td>
+                            <td>Grande interventions</td>
                             <?php for ($i = 0; $i < count($yearDisplay); $i++) {
                                 $year = $yearDisplay[$i]['year'];
                                 if (isset($customer)) {
