@@ -91,7 +91,7 @@ if (isset($_GET['operator']) && isset($_GET['year'])) {
 </form>
 
 <form id="operator" class="hidden" method="GET" action="">
-<div class="col-2 ">
+    <div class="col-2 ">
         <select onchange="Change3(this.value)" class="form-control" name="operator">
             <?php if (isset(($_GET['operator']))) {
                 $req = "SELECT * FROM operator WHERE id_operator = $operator";
@@ -111,24 +111,24 @@ if (isset($_GET['operator']) && isset($_GET['year'])) {
             ?>
         </select>
         <br>
-    <?php if (isset(($_GET['operator']))) { 
+        <?php if (isset(($_GET['operator']))) {
             $req = "SELECT DISTINCT year FROM ticket WHERE id_operator = $operator ORDER BY `ticket`.`year` ASC";
             $res = $pdo->query($req);
             $yearSelected = $res->fetchAll();
-            ?>
-             <select id="year2" class="form-control" name="year">
+        ?>
+            <select id="year2" class="form-control" name="year">
                 <option class="bold" selected><?php echo $year ?></option>
                 <?php for ($i = 0; $i < count($yearSelected); $i++) : ?>
                     <option><?php echo $yearSelected[$i]['year'] ?></option>
                 <?php endfor; ?>
             </select>
         <?php } else { ?>
-        <select id="year2" class="form-control" name="year">
-            <option selected>Choisir une année</option>
-        </select>
+            <select id="year2" class="form-control" name="year">
+                <option selected>Choisir une année</option>
+            </select>
         <?php } ?>
-    <br>
-    <button class="btn btn-primary" type="submit">Valider</button>
+        <br>
+        <button class="btn btn-primary" type="submit">Valider</button>
     </div>
 </form>
 <?php
@@ -141,108 +141,108 @@ if (isset($Choice)) {
                                         ?>
                 pour l'année de <?php echo  $Choice[0]['year'] ?>
             </H2>
-            <?php
+        <?php
         } else if (isset($operator)) { ?>
-                <H2>Evolution mensuel de <?php echo $Choice[0]['name'] ?> pour l'année de <?php echo  $Choice[0]['year'] ?></H2><?php } ?>
+            <H2>Evolution mensuel de <?php echo $Choice[0]['name'] ?> pour l'année de <?php echo  $Choice[0]['year'] ?></H2><?php } ?>
+    <?php
+}
+    ?>
+    <br>
+    <div id="chartdiv1"></div>
+    <?php
+    if (isset($Choice)) {
+    ?>
+        <?php if (isset($customer)) { ?>
+            <H2>Evolution annuel de <?php
+                                    echo $Choice[0]['name'];
+                                    ?>
+            </H2>
         <?php
+        } else if (isset($operator)) { ?>
+            <H2>Evolution annuel de <?php echo $Choice[0]['name'] ?></H2><?php } ?>
+    <?php
     }
-        ?>
-        <br>
-        <div id="chartdiv1"></div>
-        <?php
-        if (isset($Choice)) {
-        ?>
-            <?php if (isset($customer)) { ?>
-                <H2>Evolution annuel de <?php
-                                        echo $Choice[0]['name'];
-                                        ?>
-                </H2>
-                <?php
-            } else if (isset($operator)) { ?>
-                    <H2>Evolution annuel de <?php echo $Choice[0]['name'] ?></H2><?php } ?>
-            <?php
-        }
-            ?>
-            <br>
-            <div id="chartdiv2"></div>
-            <?php if (isset($customer) || isset($operator)) { ?>
-                <table class="table table-bordered w-50">
-                    <thead>
-                        <tr>
-                            <th width="1px;">Interventions</th>
-                            <?php for ($i = 0; $i < count($yearDisplay); $i++) { ?>
-                                <th><?php echo $yearDisplay[$i]['year'] ?></th>
-                            <?php } ?>
-                        </tr>
+    ?>
+    <br>
+    <div id="chartdiv2"></div>
+    <?php if (isset($customer) || isset($operator)) { ?>
+        <table class="table table-bordered w-50">
+            <thead>
+                <tr>
+                    <th width="1px;">Interventions</th>
+                    <?php for ($i = 0; $i < count($yearDisplay); $i++) { ?>
+                        <th><?php echo $yearDisplay[$i]['year'] ?></th>
+                    <?php } ?>
+                </tr>
 
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Instantanées</td>
-                            <?php for ($i = 0; $i < count($yearDisplay); $i++) {
-                                $year = $yearDisplay[$i]['year'];
-                                if (isset($customer)) {
-                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 1 AND year = $year AND id_tag = $customer";
-                                } else if (isset($operator)) {
-                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 1 AND year = $year AND id_operator = $operator";
-                                }
-                                $res = $pdo->query($req);
-                                $instantanée = $res->fetchAll();
-                            ?>
-                                <td><?php echo $instantanée[0][0]  ?></td>
-                            <?php } ?>
-                        </tr>
-                        <tr>
-                            <td>Petite interventions</td>
-                            <?php for ($i = 0; $i < count($yearDisplay); $i++) {
-                                $year = $yearDisplay[$i]['year'];
-                                if (isset($customer)) {
-                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 2 AND year = $year AND id_tag = $customer";
-                                } else if (isset($operator)) {
-                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 2 AND year = $year AND id_operator = $operator";
-                                }
-                                $res = $pdo->query($req);
-                                $petiteIntervention = $res->fetchAll();
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Instantanées</td>
+                    <?php for ($i = 0; $i < count($yearDisplay); $i++) {
+                        $year = $yearDisplay[$i]['year'];
+                        if (isset($customer)) {
+                            $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 1 AND year = $year AND id_tag = $customer";
+                        } else if (isset($operator)) {
+                            $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 1 AND year = $year AND id_operator = $operator";
+                        }
+                        $res = $pdo->query($req);
+                        $instantanée = $res->fetchAll();
+                    ?>
+                        <td><?php echo $instantanée[0][0]  ?></td>
+                    <?php } ?>
+                </tr>
+                <tr>
+                    <td>Petite interventions</td>
+                    <?php for ($i = 0; $i < count($yearDisplay); $i++) {
+                        $year = $yearDisplay[$i]['year'];
+                        if (isset($customer)) {
+                            $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 2 AND year = $year AND id_tag = $customer";
+                        } else if (isset($operator)) {
+                            $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 2 AND year = $year AND id_operator = $operator";
+                        }
+                        $res = $pdo->query($req);
+                        $petiteIntervention = $res->fetchAll();
 
-                            ?>
-                                <td><?php echo $petiteIntervention[0][0]  ?></td>
-                            <?php } ?>
-                        </tr>
-                        <tr>
-                            <td>Moyenne interventions</td>
-                            <?php for ($i = 0; $i < count($yearDisplay); $i++) {
-                                $year = $yearDisplay[$i]['year'];
-                                if (isset($customer)) {
-                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 3 AND year = $year AND id_tag = $customer";
-                                } else if (isset($operator)) {
-                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 3 AND year = $year AND id_operator = $operator";
-                                }
-                                $res = $pdo->query($req);
-                                $moyenneIntervention = $res->fetchAll();
-                            ?>
-                                <td><?php echo $moyenneIntervention[0][0]  ?></td>
-                            <?php } ?>
-                        </tr>
-                        <tr>
-                            <td>Grande interventions</td>
-                            <?php for ($i = 0; $i < count($yearDisplay); $i++) {
-                                $year = $yearDisplay[$i]['year'];
-                                if (isset($customer)) {
-                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 4 AND year = $year AND id_tag = $customer";
-                                } else if (isset($operator)) {
-                                    $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 4 AND year = $year AND id_operator = $operator";
-                                }
-                                $res = $pdo->query($req);
-                                $grandeIntervention = $res->fetchAll();
-                            ?>
-                                <td><?php echo $grandeIntervention[0][0]  ?></td>
-                            <?php } ?>
-                        </tr>
-                    </tbody>
-                </table>
-            <?php
-            }
-            ?>
+                    ?>
+                        <td><?php echo $petiteIntervention[0][0]  ?></td>
+                    <?php } ?>
+                </tr>
+                <tr>
+                    <td>Moyenne interventions</td>
+                    <?php for ($i = 0; $i < count($yearDisplay); $i++) {
+                        $year = $yearDisplay[$i]['year'];
+                        if (isset($customer)) {
+                            $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 3 AND year = $year AND id_tag = $customer";
+                        } else if (isset($operator)) {
+                            $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 3 AND year = $year AND id_operator = $operator";
+                        }
+                        $res = $pdo->query($req);
+                        $moyenneIntervention = $res->fetchAll();
+                    ?>
+                        <td><?php echo $moyenneIntervention[0][0]  ?></td>
+                    <?php } ?>
+                </tr>
+                <tr>
+                    <td>Grande interventions</td>
+                    <?php for ($i = 0; $i < count($yearDisplay); $i++) {
+                        $year = $yearDisplay[$i]['year'];
+                        if (isset($customer)) {
+                            $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 4 AND year = $year AND id_tag = $customer";
+                        } else if (isset($operator)) {
+                            $req = "SELECT COUNT(*) FROM ticket WHERE id_zone = 4 AND year = $year AND id_operator = $operator";
+                        }
+                        $res = $pdo->query($req);
+                        $grandeIntervention = $res->fetchAll();
+                    ?>
+                        <td><?php echo $grandeIntervention[0][0]  ?></td>
+                    <?php } ?>
+                </tr>
+            </tbody>
+        </table>
+    <?php
+    }
+    ?>
     </center>
     <script>
         // var year = <?php

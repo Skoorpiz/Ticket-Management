@@ -161,7 +161,7 @@ function insertTag($pdo, $tag)
 {
     $req = "INSERT INTO tag (name) VALUES ($tag);";
     $pdo->query($req);
-    
+
     // return $pdo->lastInsertId();
 }
 function insertOperator($pdo, $operator)

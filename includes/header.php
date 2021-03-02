@@ -23,26 +23,28 @@ and open the template in the editor.
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
-  
+
 </head>
 <style>
   .bold {
     font-weight: bold;
   }
+
   .black {
-    color : black;
+    color: black;
   }
 </style>
+
 <body>
   <nav role='navigation' class="navbar navbar-expand-lg navbar-light " style="background-color: #e3f2fd;">
     <div class="container-fluid">
-      <a <?php if(isset($page) && $page == "home"){ ?> class="nav-link black bold" <?php }else {?>  class="nav-link active black"  <?php } ?>  class="navbar-brand" href="/edsa-gestion_ticket/index.php">Home</a>
+      <a <?php if (isset($page) && $page == "home") { ?> class="nav-link black bold" <?php } else { ?> class="nav-link active black" <?php } ?> class="navbar-brand" href="/edsa-gestion_ticket/index.php">Home</a>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
 
-          <a <?php if(isset($page) && $page == "détails"){ ?> class="nav-link active bold" <?php }else {?>  class="nav-link active"  <?php } ?> aria-current="page" href="/edsa-gestion_ticket/detail.php">Détails</a>
+          <a <?php if (isset($page) && $page == "détails") { ?> class="nav-link active bold" <?php } else { ?> class="nav-link active" <?php } ?> aria-current="page" href="/edsa-gestion_ticket/detail.php">Détails</a>
           <div class="dropdown">
-            <button type="button" <?php if(isset($page) && $page == "doublon") { ?> class="btn dropdown-toggle bold" <?php } else { ?> class="btn  dropdown-toggle" <?php } ?> data-toggle="dropdown">
+            <button type="button" <?php if (isset($page) && $page == "doublon") { ?> class="btn dropdown-toggle bold" <?php } else { ?> class="btn  dropdown-toggle" <?php } ?> data-toggle="dropdown">
               Gestion doublons
             </button>
             <div class="dropdown-menu">
@@ -50,7 +52,7 @@ and open the template in the editor.
               <a class="dropdown-item" href="/edsa-gestion_ticket/gestionDoublon.php">Edition de regroupement</a>
             </div>
           </div>
-          <a <?php if(isset($page) && $page == "ticket"){ ?> class="nav-link active bold" <?php }else {?>  class="nav-link active"  <?php } ?> class="nav-link active" aria-current="page" href="/edsa-gestion_ticket/ticket.php">Importation des tickets</a>
+          <a <?php if (isset($page) && $page == "ticket") { ?> class="nav-link active bold" <?php } else { ?> class="nav-link active" <?php } ?> class="nav-link active" aria-current="page" href="/edsa-gestion_ticket/ticket.php">Importation des tickets</a>
         </div>
       </div>
     </div>

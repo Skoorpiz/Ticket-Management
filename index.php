@@ -17,7 +17,7 @@ INNER JOIN operator ON ticket.id_operator = operator.id_operator
 WHERE year = YEAR(CURDATE()) OR year = YEAR(CURDATE()) -1
 GROUP BY ticket.id_operator
 ORDER BY SUM(time_minute)  DESC
-LIMIT 5";
+LIMIT 4";
 $res = $pdo->query($req);
 $maxOperator = $res->fetchAll();
 
@@ -25,11 +25,12 @@ $req = "SELECT operator.name, ticket.id_operator,SUM(time_minute)
 FROM ticket
 INNER JOIN operator ON ticket.id_operator = operator.id_operator
 WHERE year = YEAR(CURDATE()) 
+AND time_minute > 0 
 OR year = YEAR(CURDATE()) -1
 AND time_minute > 0 
 GROUP BY ticket.id_operator
 ORDER BY SUM(time_minute)  ASC
-LIMIT 5";
+LIMIT 4";
 $res = $pdo->query($req);
 $minOperator = $res->fetchAll();
 
