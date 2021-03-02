@@ -43,7 +43,7 @@ if (isset($_GET['operator']) && isset($_GET['year'])) {
         font-weight: bold;
     }
 </style>
-<div class="col-1">
+<div class="col-2">
     <select class="form-control" onchange="Change(this.value)">
         <option>Choisir une option..</option>
         <option <?php if (isset($_GET['customer'])) { ?> selected <?php } ?> value="client">Client</option>
@@ -68,7 +68,7 @@ if (isset($_GET['operator']) && isset($_GET['year'])) {
             <?php endfor; ?>
         </select>
         <br>
-        <?php if (isset(($_GET['customer']))) {
+        <?php if (isset($_GET['customer'])) {
             $req = "SELECT DISTINCT year FROM ticket WHERE id_tag = $customer ORDER BY `ticket`.`year` ASC";
             $res = $pdo->query($req);
             $yearSelected = $res->fetchAll();
